@@ -150,12 +150,28 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Our Mission</h3>
+                    <div id="adminMissionControls" style="display: none; margin-top: 10px;">
+                        <button id="editMissionBtn" class="btn btn-sm" style="background-color: #facc15; color: #000; border: none; margin-right: 10px;">
+                            <i class="fas fa-edit"></i> Edit Mission
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="about-section">
                         <div class="about-content">
-                            <div class="mission-box" style="background-color: #f9f9f9; border-left: 4px solid #facc15; padding: 25px; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
-                                <p style="font-size: 1.25rem; font-style: italic; text-align: justify; line-height: 1.7;">"Flash running club was established to redefine the meaning of sport. To elevate running to new heights, both nationally and internationally. Our mission is to nurture successful, high-performing athletes, create a lasting legacy, and inspire future generations. We believe that running is not just a physical activity but a lifestyle that fosters discipline, perseverance, and mental well-being. We are here to make history and set the standard for excellence in running."</p>
+                            <div id="missionDisplay" class="mission-box" style="background-color: #f9f9f9; border-left: 4px solid #facc15; padding: 25px; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);">
+                                <p id="missionText" style="font-size: 1.25rem; font-style: italic; text-align: justify; line-height: 1.7;">"Flash running club was established to redefine the meaning of sport. To elevate running to new heights, both nationally and internationally. Our mission is to nurture successful, high-performing athletes, create a lasting legacy, and inspire future generations. We believe that running is not just a physical activity but a lifestyle that fosters discipline, perseverance, and mental well-being. We are here to make history and set the standard for excellence in running."</p>
+                            </div>
+                            <div id="missionEditor" style="display: none; margin-top: 15px;">
+                                <textarea id="missionTextarea" style="width: 100%; min-height: 200px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; font-family: Arial, sans-serif; margin-bottom: 15px;"></textarea>
+                                <div>
+                                    <button id="saveMissionBtn" class="btn" style="background-color: #28a745; color: white; border: none; margin-right: 10px;">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                    <button id="cancelMissionBtn" class="btn" style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd;">
+                                        Cancel
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -165,11 +181,16 @@
             <div class="card mt-20">
                 <div class="card-header">
                     <h3 class="card-title">Our Team</h3>
+                    <div id="adminTeamControls" style="display: none; margin-top: 10px;">
+                        <button id="editTeamBtn" class="btn btn-sm" style="background-color: #facc15; color: #000; border: none;">
+                            <i class="fas fa-edit"></i> Edit Team
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="about-section">
-                        <div class="team-grid">
-                            <div class="team-member">
+                        <div id="teamDisplay" class="team-grid">
+                            <div class="team-member" data-member="0">
                                 <img src="ylht6exafl.jpg" alt="Team Member" class="team-photo">
                                 <div class="team-info">
                                     <div class="team-name">Sarah Johnson</div>
@@ -177,7 +198,7 @@
                                     <p>Marathon runner with 15 years of experience and a passion for coaching new runners.</p>
                                 </div>
                             </div>
-                            <div class="team-member">
+                            <div class="team-member" data-member="1">
                                 <img src="ylht6exafl.jpg" alt="Team Member" class="team-photo">
                                 <div class="team-info">
                                     <div class="team-name">Michael Chen</div>
@@ -185,13 +206,26 @@
                                     <p>Certified athletic trainer specializing in running techniques and injury prevention.</p>
                                 </div>
                             </div>
-                            <div class="team-member">
+                            <div class="team-member" data-member="2">
                                 <img src="ylht6exafl.jpg" alt="Team Member" class="team-photo">
                                 <div class="team-info">
                                     <div class="team-name">Lisa Rodriguez</div>
                                     <div class="team-role">Events Coordinator</div>
                                     <p>Organized over 50 successful running events and specializes in community outreach.</p>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Edit Form -->
+                        <div id="teamEditor" style="display: none;">
+                            <div id="teamMemberForms"></div>
+                            <div style="margin-top: 20px;">
+                                <button id="saveTeamBtn" class="btn" style="background-color: #28a745; color: white; border: none; margin-right: 10px;">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <button id="cancelTeamBtn" class="btn" style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd;">
+                                    Cancel
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -256,6 +290,9 @@
                 return;
             }
             
+            // Load any saved mission and team data for all users
+            loadSavedContent();
+            
             // Set up page based on user type
             const userType = localStorage.getItem('userType');
             if (userType === 'admin') {
@@ -270,6 +307,18 @@
                 logout();
             });
         });
+        
+        // Load saved content for all users
+        function loadSavedContent() {
+            // Load saved mission
+            const savedMission = localStorage.getItem('clubMission');
+            if (savedMission) {
+                document.getElementById('missionText').textContent = savedMission;
+            }
+            
+            // Load saved team data
+            updateTeamDisplay();
+        }
         
         // Function to copy email address to clipboard
         function copyEmail() {
@@ -295,6 +344,234 @@
         function setupAdminView() {
             // Make sure admin dashboard link is correct
             document.getElementById('dashboardLink').href = 'admin-dashboard.html';
+            
+            // Show admin controls for mission and team sections
+            document.getElementById('adminMissionControls').style.display = 'block';
+            document.getElementById('adminTeamControls').style.display = 'block';
+            
+            // Initialize About Us admin functionality
+            initAboutUsAdmin();
+        }
+        
+        // Initialize admin functionality for About Us page
+        function initAboutUsAdmin() {
+            // Mission section functionality
+            const missionText = document.getElementById('missionText');
+            const missionTextarea = document.getElementById('missionTextarea');
+            const missionDisplay = document.getElementById('missionDisplay');
+            const missionEditor = document.getElementById('missionEditor');
+            
+            // Edit mission button
+            document.getElementById('editMissionBtn').addEventListener('click', function() {
+                missionTextarea.value = missionText.textContent;
+                missionDisplay.style.display = 'none';
+                missionEditor.style.display = 'block';
+            });
+            
+            // Save mission button
+            document.getElementById('saveMissionBtn').addEventListener('click', function() {
+                const newMission = missionTextarea.value.trim();
+                if (newMission) {
+                    missionText.textContent = newMission;
+                    
+                    // Save to storage (you could expand this to save to a server)
+                    localStorage.setItem('clubMission', newMission);
+                    
+                    // Hide editor, show display
+                    missionDisplay.style.display = 'block';
+                    missionEditor.style.display = 'none';
+                    
+                    alert('Mission statement updated successfully!');
+                } else {
+                    alert('Mission statement cannot be empty.');
+                }
+            });
+            
+            // Cancel mission edit
+            document.getElementById('cancelMissionBtn').addEventListener('click', function() {
+                missionDisplay.style.display = 'block';
+                missionEditor.style.display = 'none';
+            });
+            
+            // Team section functionality
+            const editTeamBtn = document.getElementById('editTeamBtn');
+            const saveTeamBtn = document.getElementById('saveTeamBtn');
+            const cancelTeamBtn = document.getElementById('cancelTeamBtn');
+            const teamDisplay = document.getElementById('teamDisplay');
+            const teamEditor = document.getElementById('teamEditor');
+            const teamMemberForms = document.getElementById('teamMemberForms');
+            
+            // Load team data
+            let teamData = localStorage.getItem('teamData');
+            if (!teamData) {
+                // Initialize with default data
+                teamData = [
+                    {
+                        name: 'Sarah Johnson',
+                        role: 'Club President',
+                        description: 'Marathon runner with 15 years of experience and a passion for coaching new runners.',
+                        photo: 'ylht6exafl.jpg'
+                    },
+                    {
+                        name: 'Michael Chen',
+                        role: 'Head Coach',
+                        description: 'Certified athletic trainer specializing in running techniques and injury prevention.',
+                        photo: 'ylht6exafl.jpg'
+                    },
+                    {
+                        name: 'Lisa Rodriguez',
+                        role: 'Events Coordinator',
+                        description: 'Organized over 50 successful running events and specializes in community outreach.',
+                        photo: 'ylht6exafl.jpg'
+                    }
+                ];
+                localStorage.setItem('teamData', JSON.stringify(teamData));
+            } else {
+                teamData = JSON.parse(teamData);
+            }
+            
+            // Edit team button
+            editTeamBtn.addEventListener('click', function() {
+                // Create form for each team member
+                teamMemberForms.innerHTML = '';
+                
+                teamData.forEach((member, index) => {
+                    const memberForm = document.createElement('div');
+                    memberForm.className = 'team-member-form';
+                    memberForm.style.border = '1px solid #ddd';
+                    memberForm.style.borderRadius = '8px';
+                    memberForm.style.padding = '20px';
+                    memberForm.style.marginBottom = '20px';
+                    
+                    memberForm.innerHTML = `
+                        <h4>Team Member ${index + 1}</h4>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Name:</label>
+                            <input type="text" class="form-control member-name" value="${member.name}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Role:</label>
+                            <input type="text" class="form-control member-role" value="${member.role}" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description:</label>
+                            <textarea class="form-control member-description" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 80px;">${member.description}</textarea>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Photo:</label>
+                            <div style="display: flex; align-items: center;">
+                                <img src="${member.photo}" alt="Team Member" style="width: 80px; height: 80px; object-fit: cover; margin-right: 10px; border-radius: 4px;">
+                                <input type="file" class="member-photo-input" accept="image/*" data-index="${index}">
+                            </div>
+                        </div>
+                    `;
+                    
+                    teamMemberForms.appendChild(memberForm);
+                });
+                
+                // Add event listeners to photo inputs
+                document.querySelectorAll('.member-photo-input').forEach(input => {
+                    input.addEventListener('change', function(event) {
+                        if (event.target.files && event.target.files[0]) {
+                            const file = event.target.files[0];
+                            const reader = new FileReader();
+                            const index = event.target.getAttribute('data-index');
+                            
+                            reader.onload = function(e) {
+                                // Preview the image
+                                const img = event.target.previousElementSibling;
+                                img.src = e.target.result;
+                                
+                                // Save the data URL to use later
+                                event.target.dataset.imageData = e.target.result;
+                            };
+                            
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                });
+                
+                // Show editor, hide display
+                teamDisplay.style.display = 'none';
+                teamEditor.style.display = 'block';
+            });
+            
+            // Save team button
+            saveTeamBtn.addEventListener('click', function() {
+                const forms = document.querySelectorAll('.team-member-form');
+                const updatedTeamData = [];
+                
+                forms.forEach((form, index) => {
+                    const nameInput = form.querySelector('.member-name');
+                    const roleInput = form.querySelector('.member-role');
+                    const descriptionInput = form.querySelector('.member-description');
+                    const photoInput = form.querySelector('.member-photo-input');
+                    
+                    // Get current photo or new one if uploaded
+                    let photo = teamData[index].photo;
+                    if (photoInput.dataset.imageData) {
+                        // Save image data URL (in a real app, you'd upload to server)
+                        photo = photoInput.dataset.imageData;
+                    }
+                    
+                    updatedTeamData.push({
+                        name: nameInput.value,
+                        role: roleInput.value,
+                        description: descriptionInput.value,
+                        photo: photo
+                    });
+                    
+                    // Update display
+                    const teamMember = document.querySelector(`.team-member[data-member="${index}"]`);
+                    if (teamMember) {
+                        teamMember.querySelector('.team-photo').src = photo;
+                        teamMember.querySelector('.team-name').textContent = nameInput.value;
+                        teamMember.querySelector('.team-role').textContent = roleInput.value;
+                        teamMember.querySelector('p').textContent = descriptionInput.value;
+                    }
+                });
+                
+                // Save to storage
+                localStorage.setItem('teamData', JSON.stringify(updatedTeamData));
+                teamData = updatedTeamData;
+                
+                // Hide editor, show display
+                teamDisplay.style.display = 'grid';
+                teamEditor.style.display = 'none';
+                
+                alert('Team information updated successfully!');
+            });
+            
+            // Cancel team edit
+            cancelTeamBtn.addEventListener('click', function() {
+                teamDisplay.style.display = 'grid';
+                teamEditor.style.display = 'none';
+            });
+            
+            // Load saved mission from localStorage if available
+            const savedMission = localStorage.getItem('clubMission');
+            if (savedMission) {
+                missionText.textContent = savedMission;
+            }
+            
+            // Load saved team data from localStorage
+            updateTeamDisplay();
+        }
+        
+        // Update team display with data from localStorage
+        function updateTeamDisplay() {
+            const teamData = JSON.parse(localStorage.getItem('teamData'));
+            if (!teamData) return;
+            
+            teamData.forEach((member, index) => {
+                const teamMember = document.querySelector(`.team-member[data-member="${index}"]`);
+                if (teamMember) {
+                    teamMember.querySelector('.team-photo').src = member.photo;
+                    teamMember.querySelector('.team-name').textContent = member.name;
+                    teamMember.querySelector('.team-role').textContent = member.role;
+                    teamMember.querySelector('p').textContent = member.description;
+                }
+            });
         }
         
         function setupMemberView() {
